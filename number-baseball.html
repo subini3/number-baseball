@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="kr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>숫자야구</title>
+</head>
+
+<body>
+  <form id='form'>
+    <input type='text' id='input'>
+    <button>확인</button>
+  </form>
+  <div id='logs'></div>
+  <script>
+
+    const $input = document.querySelector('#input')
+    const $form = document.querySelector('#form')
+    const $logs = document.querySelector('#logs')
+  
+    const numbers = [];
+    for (let n = 0; n < 9; n++){
+      numbers.push(n+1);
+    } 
+    const answer = [];
+    for (let n = 0; n < 4; n++){ //4번 반복
+      const index = Math.floor(Math.random() * numbers.length); // 0~8 정수, 인덱스이기 때문에 1~9 자연수이면 0~8 인덱스이다.
+      answer.push(numbers[index]); // answer에 푸쉬 해주고
+      numbers.splice(index, 1); // numbers에선 빼주고
+    } 
+    console.log(answer);
+
+    const tries = [];
+    function checkInput(input){
+      if (input.length !== 4){
+        return alert('4자리 숫자를 입력해 주세요');
+      }
+      if (new Set(input).size !== 4){ // new Set().size 중복 제거 3144이면 4가 제거되어 314라서 size가 3이 됨
+        return alert('중복되지 않게 입력해 주세요');
+      }
+      if (tries.includes(input)){ // includes 배열에 들어있는 값
+        return alert('이미 시도한 값입니다.')
+      }
+      return true;
+    };
+
+    $form.addEventListener('submit', (event) => {
+      event.preventDefault(); // 기본동작 막기 (html에서 form의 기본동작은 새로고침 a태그도)
+      const value = $input.value
+      $input.value = '';
+      if (!checkInput(value)){
+        return;
+      }
+      if (checkInput(value)){
+        if(answer.join('') === value){ // join('') -> 배열을 숫자로 변환 , [3, 1, 4, 6].join('') = 3146
+          $logs.textContent = '홈런!';//                                                     (:) = 3:1:4:6
+          return;
+        }
+        if (tries.length >=9){ // 10번째 시도
+          $logs.append(`패배! 정답은 ${answer.join('')}`); 
+          return;         
+        } 
+      }  
+      let strike = 0;
+      let ball = 0;
+      //3146  3164  
+      for (let i = 0; i < answer.length; i++){
+        const index = value.indexOf(answer[i]);
+        if(index > -1){ //일치하는 숫자 발견
+          if (index === i){ // 자릿수도 같음
+            strike += 1;
+          } else{ // 숫자만 같음
+            ball += 1;
+          }
+        }
+      }
+      $logs.append(`${value}: ${strike} 스트라이크 ${ball} 볼`, document.createElement('br')); // $logs.append(); logs태그에 추가
+      tries.push(value);
+    });
+  </script>
+
+</body>
+
+</html>
